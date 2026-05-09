@@ -1,4 +1,4 @@
-const CACHE = 'kt-v3';
+const CACHE = 'kt-v4';
 const ASSETS = [
   './',
   './index.html',
