@@ -12,7 +12,7 @@ const DEFAULT_STATE = {
     weekend: [],
     holiday: []
   },
-  dayTemplateMap: {  // which template each day-of-week uses by default
+  dayTemplateMap: {  // which template was last applied to each day (label + reset source)
     monday:    'normal',
     tuesday:   'normal',
     wednesday: 'normal',
@@ -20,6 +20,15 @@ const DEFAULT_STATE = {
     friday:    'normal',
     saturday:  'weekend',
     sunday:    'weekend'
+  },
+  weekSchedule: {    // per-day-of-week task lists (independent copies)
+    monday:    [],
+    tuesday:   [],
+    wednesday: [],
+    thursday:  [],
+    friday:    [],
+    saturday:  [],
+    sunday:    []
   },
   history: {},        // 'YYYY-MM-DD' → { completed: [taskId,...], stamped: bool }
   dayOverrides: {},   // 'YYYY-MM-DD' → 'holiday' (one-off override; "Today is a holiday" button)
@@ -66,12 +75,13 @@ export function load() {
 
 function mergeDefaults(loaded) {
   const d = clone(DEFAULT_STATE);
-  return {
+  const merged = {
     ...d,
     ...loaded,
     child:          { ...d.child,          ...(loaded.child          || {}) },
     templates:      { ...d.templates,      ...(loaded.templates      || {}) },
     dayTemplateMap: { ...d.dayTemplateMap, ...(loaded.dayTemplateMap || {}) },
+    weekSchedule:   { ...d.weekSchedule,   ...(loaded.weekSchedule   || {}) },
     stars:          { ...d.stars,          ...(loaded.stars          || {}) },
     vouchers: {
       ...d.vouchers,
@@ -82,6 +92,15 @@ function mergeDefaults(loaded) {
     history:        loaded.history      || {},
     dayOverrides:   loaded.dayOverrides || {}
   };
+  // Migration: pre-weekSchedule users → seed each day from its current template
+  if (!loaded.weekSchedule) {
+    for (const day of Object.keys(merged.weekSchedule)) {
+      const tplName = merged.dayTemplateMap[day] || 'normal';
+      const tpl = merged.templates[tplName] || [];
+      merged.weekSchedule[day] = tpl.map(t => ({ ...t }));
+    }
+  }
+  return merged;
 }
 
 function persist() {

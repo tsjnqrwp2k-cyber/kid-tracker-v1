@@ -31,8 +31,16 @@ export function getTemplateNameForDate(date = new Date()) {
 }
 
 export function getTodayTasks() {
-  const tplName = getTemplateNameForDate();
-  return get().templates[tplName] || [];
+  const date = new Date();
+  const key = getTodayKey(date);
+  const state = get();
+  // One-off date override: use the named preset directly (not customisable per date)
+  if (state.dayOverrides[key]) {
+    return state.templates[state.dayOverrides[key]] || [];
+  }
+  // Normal weekly use: per-day-of-week task list
+  const dayName = getDayName(date);
+  return state.weekSchedule[dayName] || [];
 }
 
 // ---------- Template CRUD ----------
@@ -74,17 +82,83 @@ export function setDayTemplate(dayName, templateName) {
 
 export function applyTemplateToDays(templateName, dayNames) {
   mutate(s => {
-    for (const day of dayNames) s.dayTemplateMap[day] = templateName;
+    const src = s.templates[templateName] || [];
+    for (const day of dayNames) {
+      s.weekSchedule[day] = src.map(t => ({ ...t }));
+      s.dayTemplateMap[day] = templateName;
+    }
   });
+}
+
+// ---------- Per-day CRUD ----------
+
+export function getDayTasks(dayName) {
+  return get().weekSchedule[dayName] || [];
+}
+
+export function addTaskToDay(dayName, task) {
+  mutate(s => {
+    if (!s.weekSchedule[dayName]) s.weekSchedule[dayName] = [];
+    s.weekSchedule[dayName].push({
+      id:     task.id     || newTaskId(),
+      name:   task.name   || 'New task',
+      emoji:  task.emoji  || '⭐',
+      time:   task.time   || '',
+      period: task.period || 'morning'
+    });
+  });
+}
+
+export function updateTaskInDay(dayName, taskId, patch) {
+  mutate(s => {
+    const list = s.weekSchedule[dayName];
+    if (!list) return;
+    const t = list.find(x => x.id === taskId);
+    if (t) Object.assign(t, patch);
+  });
+}
+
+export function deleteTaskFromDay(dayName, taskId) {
+  mutate(s => {
+    const list = s.weekSchedule[dayName];
+    if (!list) return;
+    const idx = list.findIndex(x => x.id === taskId);
+    if (idx >= 0) list.splice(idx, 1);
+  });
+}
+
+export function resetDayToTemplate(dayName) {
+  mutate(s => {
+    const tplName = s.dayTemplateMap[dayName] || 'normal';
+    s.weekSchedule[dayName] = (s.templates[tplName] || []).map(t => ({ ...t }));
+  });
+}
+
+export function dayDiffersFromTemplate(dayName) {
+  const s = get();
+  const tplName = s.dayTemplateMap[dayName];
+  const dayTasks = s.weekSchedule[dayName] || [];
+  const tplTasks = s.templates[tplName] || [];
+  if (dayTasks.length !== tplTasks.length) return true;
+  const sig = (t) => `${t.id}|${t.name}|${t.emoji}|${t.time}|${t.period}`;
+  const a = dayTasks.map(sig).slice().sort().join('\n');
+  const b = tplTasks.map(sig).slice().sort().join('\n');
+  return a !== b;
 }
 
 export function getDayHistory(dateKey = getTodayKey()) {
   const raw = get().history[dateKey];
   return {
     completed: raw?.completed || [],
-    stamped: !!raw?.stamped,
+    stamped: normalizeStamped(raw?.stamped),
     removedStars: raw?.removedStars || []
   };
+}
+
+function normalizeStamped(s) {
+  // Legacy boolean: assume the stamp was for morning (older versions only marked once per day).
+  if (typeof s === 'boolean') return { morning: s, evening: false };
+  return { morning: !!s?.morning, evening: !!s?.evening };
 }
 
 export function isTaskCompleteToday(taskId) {
@@ -154,11 +228,22 @@ export function clearTodayOverride() {
   mutate(s => { delete s.dayOverrides[dateKey]; });
 }
 
-export function markStampedToday() {
+export function markStampedToday(period) {
   const dateKey = getTodayKey();
   mutate(s => {
-    if (!s.history[dateKey]) s.history[dateKey] = { completed: [], stamped: false };
-    s.history[dateKey].stamped = true;
+    let day = s.history[dateKey];
+    if (!day) {
+      day = { completed: [], stamped: { morning: false, evening: false }, removedStars: [] };
+      s.history[dateKey] = day;
+    }
+    // Migrate legacy boolean stamped → object
+    if (typeof day.stamped === 'boolean') {
+      day.stamped = { morning: day.stamped, evening: false };
+    }
+    if (!day.stamped) day.stamped = { morning: false, evening: false };
+    if (period === 'morning' || period === 'evening') {
+      day.stamped[period] = true;
+    }
   });
 }
 
