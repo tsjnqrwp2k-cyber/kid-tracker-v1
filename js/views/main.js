@@ -62,7 +62,7 @@ function draw() {
   const todayKey = getTodayKey();
   const isHoliday = state.dayOverrides[todayKey] === 'holiday';
   const tplName = getTemplateNameForDate();
-  const stamped = getDayHistory().stamped;
+  const stamped = getDayHistory().stamped[activePeriod];
 
   mountedContainer.innerHTML = `
     <header class="main-header">
@@ -117,7 +117,7 @@ function draw() {
   if (allDone && !stamped) {
     burstConfetti();
     playSfx('confetti');
-    markStampedToday();
+    markStampedToday(activePeriod);
   }
 }
 

@@ -11,9 +11,10 @@
 
 import { get, mutate, subscribe, reset, exportJson, importJson } from '../state.js';
 import {
-  TEMPLATE_NAMES, getTodayKey, removeStar, restoreStar, isStarRemoved
+  TEMPLATE_NAMES, DAYS_OF_WEEK, getTodayKey, removeStar, restoreStar, isStarRemoved
 } from '../tasks.js';
 import { TIER_NAMES, claimVoucher, setRewardLabel } from '../vouchers.js';
+import { renderScheduleEditorHTML, bindScheduleEditor } from '../schedule-editor.js';
 
 const TIER_DISPLAY = {
   bronze:   { emoji: '🥉', label: 'Bronze',   stars: 25 },
@@ -41,6 +42,7 @@ export function render(container) {
       }
       draw();
     });
+    container.addEventListener('schedule-editor:redraw', () => { if (mountedContainer) draw(); });
   }
   if (!starMgmtDate) starMgmtDate = getTodayKey();
   draw();
@@ -158,20 +160,20 @@ function drawDashboard() {
       <button class="btn-secondary" id="logout-btn">Lock</button>
     </div>
 
+    <div class="card settings-section">
+      <h2 class="section-title">📅 Schedule</h2>
+      ${renderScheduleEditorHTML()}
+    </div>
+
     ${starSectionHtml(state)}
     ${voucherSectionHtml(state)}
     ${pinChangeSectionHtml()}
     ${backupSectionHtml()}
     ${dangerSectionHtml()}
-
-    <div class="card settings-section">
-      <h2 class="section-title">📅 Edit schedules</h2>
-      <p class="muted">Templates and day-of-week assignments live in Settings.</p>
-      <button class="btn-secondary" data-nav="settings">Open Settings</button>
-    </div>
   `;
 
   bindDashboard();
+  bindScheduleEditor(mountedContainer);
 }
 
 function starSectionHtml(state) {
@@ -406,6 +408,10 @@ function bindDashboard() {
 }
 
 function lookupTask(state, taskId) {
+  for (const dayName of DAYS_OF_WEEK) {
+    const found = state.weekSchedule?.[dayName]?.find(t => t.id === taskId);
+    if (found) return found;
+  }
   for (const tplName of TEMPLATE_NAMES) {
     const found = state.templates[tplName]?.find(t => t.id === taskId);
     if (found) return found;
