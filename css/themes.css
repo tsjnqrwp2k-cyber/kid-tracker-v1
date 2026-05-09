@@ -1,0 +1,109 @@
+/* ============================================================
+   themes.css — 6 themes via [data-theme="..."] on <html>
+   Each theme defines the same set of CSS variables.
+   ============================================================ */
+
+/* ---------- Pastel (default) ---------- */
+[data-theme="pastel"] {
+  --bg: #FFF9F0;
+  --surface: #FFFFFF;
+  --text: #4A3F4F;
+  --text-muted: #8C7E94;
+  --primary: #FF6B9D;
+  --primary-shadow: #D14A7C;
+  --on-primary: #FFFFFF;
+  --secondary: #A78BFA;
+  --accent: #FFD166;
+  --accent-soft: #FFE9B0;
+  --star: #FFC93C;
+  --star-removed: #C44545;
+  --bg-gradient: linear-gradient(180deg, #FFF9F0, #FFEAF1);
+}
+
+/* ---------- Black & White (high contrast) ---------- */
+[data-theme="bw"] {
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --text: #111111;
+  --text-muted: #555555;
+  --primary: #111111;
+  --primary-shadow: #000000;
+  --on-primary: #FFFFFF;
+  --secondary: #444444;
+  --accent: #000000;
+  --accent-soft: #DDDDDD;
+  --star: #111111;
+  --star-removed: #B22222;
+  --bg-gradient: linear-gradient(180deg, #FAFAFA, #EEEEEE);
+}
+
+/* ---------- Galaxy ---------- */
+[data-theme="galaxy"] {
+  --bg: #0E0B26;
+  --surface: #1B1842;
+  --text: #F0F0FF;
+  --text-muted: #9B95C9;
+  --primary: #B388FF;
+  --primary-shadow: #6F4BD6;
+  --on-primary: #FFFFFF;
+  --secondary: #4FC3F7;
+  --accent: #FFD166;
+  --accent-soft: #2A2658;
+  --star: #FFE066;
+  --star-removed: #FF5C5C;
+  --bg-gradient: linear-gradient(180deg, #0E0B26, #2D1B4E);
+}
+
+/* ---------- Train ---------- */
+[data-theme="train"] {
+  --bg: #EAF4FB;
+  --surface: #FFFFFF;
+  --text: #133459;
+  --text-muted: #56789B;
+  --primary: #1E66B0;
+  --primary-shadow: #144A86;
+  --on-primary: #FFFFFF;
+  --secondary: #2EA56A;
+  --accent: #E63946;
+  --accent-soft: #C7E1F4;
+  --star: #FFB400;
+  --star-removed: #B33030;
+  --bg-gradient: linear-gradient(180deg, #EAF4FB, #D7EBF7);
+}
+
+/* ---------- Cute girly ---------- */
+[data-theme="girly"] {
+  --bg: #FFE8F1;
+  --surface: #FFFFFF;
+  --text: #5C2440;
+  --text-muted: #A77390;
+  --primary: #FF4FA1;
+  --primary-shadow: #C4337C;
+  --on-primary: #FFFFFF;
+  --secondary: #C9A0FF;
+  --accent: #FFB6D9;
+  --accent-soft: #FFD4E6;
+  --star: #FFC93C;
+  --star-removed: #B73E69;
+  --bg-gradient: linear-gradient(180deg, #FFE8F1, #FFCFE3);
+}
+
+/* ---------- Unicorn (rainbow pastel) ---------- */
+[data-theme="unicorn"] {
+  --bg: #FFF6FE;
+  --surface: #FFFFFF;
+  --text: #4B2A5F;
+  --text-muted: #9876A8;
+  --primary: #C77DFF;
+  --primary-shadow: #9B4FCC;
+  --on-primary: #FFFFFF;
+  --secondary: #7AC4FF;
+  --accent: #FFB7DA;
+  --accent-soft: #F2E1FF;
+  --star: #FFD93D;
+  --star-removed: #C04D85;
+  --bg-gradient: linear-gradient(180deg, #FFF6FE 0%, #E5D4FF 50%, #C7E9FF 100%);
+}
+
+/* Apply gradient bg via body for richer feel */
+body { background: var(--bg-gradient); }
