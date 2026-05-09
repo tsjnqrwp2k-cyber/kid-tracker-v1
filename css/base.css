@@ -1162,3 +1162,103 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 .empty-actions .btn-secondary {
   width: 100%;
 }
+
+/* ============================================================
+   Schedule editor — per-day accordion (shared)
+   ============================================================ */
+
+.schedule-editor { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.muted.small { font-size: 0.85rem; }
+
+.day-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.day-row {
+  background: var(--bg);
+  border-radius: 0.875rem;
+  border: 2px solid var(--accent-soft);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.day-row.open {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.day-row-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.day-row-header:active { opacity: 0.85; }
+
+.day-row-name { flex: 0 0 auto; }
+
+.day-row-meta {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.day-row-template {
+  background: var(--accent-soft);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.day-row-flag { font-size: 0.85rem; }
+
+.day-row-count { margin-left: auto; }
+
+.day-row-chevron {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.day-row-body {
+  padding: 0 0.875rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: accordion-in 0.2s ease;
+}
+
+@keyframes accordion-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.day-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.day-row-actions .btn-primary,
+.day-row-actions .btn-secondary {
+  flex: 1 1 auto;
+  min-width: 8rem;
+}
