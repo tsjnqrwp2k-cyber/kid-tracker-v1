@@ -1,4 +1,4 @@
-const CACHE = 'kt-v4';
+const CACHE = 'kt-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   './css/themes.css',
   './js/app.js',
   './js/state.js',
+  './js/schedule-editor.js',
   './js/tasks.js',
   './js/audio.js',
   './js/vouchers.js',
