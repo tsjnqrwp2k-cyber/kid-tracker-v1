@@ -6,6 +6,8 @@
 import { get, mutate, subscribe } from '../state.js';
 import { TEMPLATE_NAMES, deleteTask } from '../tasks.js';
 import { renderScheduleEditorHTML, bindScheduleEditor, openTaskModal } from '../schedule-editor.js';
+import '../version.js'; // side-effect: sets self.APP_VERSION
+import { checkForUpdates } from '../updater.js';
 
 const THEMES = [
   { id: 'pastel',  label: 'Pastel',         emoji: '🎀' },
@@ -26,6 +28,8 @@ const TEMPLATE_DISPLAY = {
 
 let mountedContainer = null;
 let unsubscribe = null;
+let updateCheckState = 'idle'; // 'idle' | 'checking' | 'up-to-date' | 'error'
+let updateCheckClearTimer = null;
 
 export function render(container) {
   mountedContainer = container;
@@ -107,10 +111,38 @@ function draw() {
     </div>
 
     ${TEMPLATE_NAMES.map(t => templateEditorHtml(t, state.templates[t] || [])).join('')}
+
+    ${versionSectionHtml()}
   `;
 
   bindEvents();
   bindScheduleEditor(mountedContainer);
+}
+
+function versionSectionHtml() {
+  const checking = updateCheckState === 'checking';
+  let status = '';
+  if (updateCheckState === 'up-to-date') {
+    status = `<div class="version-status">✨ You're up to date</div>`;
+  } else if (updateCheckState === 'error') {
+    status = `<div class="version-status version-status-error">⚠️ Couldn't check — try again</div>`;
+  }
+  return `
+    <div class="version-section">
+      <div class="version-row">
+        <span class="version-label">v${self.APP_VERSION}</span>
+        <button class="version-check-btn" id="version-check-btn" ${checking ? 'disabled' : ''}>
+          ${checking ? 'Checking…' : 'Check for updates'}
+        </button>
+      </div>
+      ${status}
+    </div>
+  `;
+}
+
+function setUpdateCheckState(next) {
+  updateCheckState = next;
+  if (mountedContainer) draw();
 }
 
 function templateEditorHtml(name, tasks) {
@@ -165,6 +197,34 @@ function bindEvents() {
   if (muted) muted.addEventListener('change', () => mutate(s => { s.settings.muted = !muted.checked; }));
   const showTimes = mountedContainer.querySelector('#setting-show-times');
   if (showTimes) showTimes.addEventListener('change', () => mutate(s => { s.settings.showSuggestedTimes = showTimes.checked; }));
+
+  // Check for updates
+  const checkBtn = mountedContainer.querySelector('#version-check-btn');
+  if (checkBtn) {
+    checkBtn.addEventListener('click', async () => {
+      if (updateCheckState === 'checking') return;
+      if (updateCheckClearTimer) { clearTimeout(updateCheckClearTimer); updateCheckClearTimer = null; }
+      setUpdateCheckState('checking');
+      try {
+        const result = await checkForUpdates();
+        if (result === 'update-found') {
+          // The auto-banner is now showing — it IS the answer. Reset the button.
+          setUpdateCheckState('idle');
+        } else if (result === 'no-sw') {
+          // Service worker not registered (e.g. file:// or unsupported browser).
+          setUpdateCheckState('error');
+          updateCheckClearTimer = setTimeout(() => setUpdateCheckState('idle'), 3000);
+        } else {
+          setUpdateCheckState('up-to-date');
+          updateCheckClearTimer = setTimeout(() => setUpdateCheckState('idle'), 3000);
+        }
+      } catch (err) {
+        console.error('[update-check] failed:', err);
+        setUpdateCheckState('error');
+        updateCheckClearTimer = setTimeout(() => setUpdateCheckState('idle'), 3000);
+      }
+    });
+  }
 
   // Templates editor — add/edit/delete (uses shared modal)
   mountedContainer.querySelectorAll('.template-add').forEach(btn => {
