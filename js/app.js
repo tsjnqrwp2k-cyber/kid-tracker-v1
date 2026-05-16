@@ -4,6 +4,7 @@ import { load, get, mutate, subscribe } from './state.js';
 import { initVoucherDetector } from './vouchers.js';
 import { initAudio } from './audio.js';
 import { initReminders } from './reminders.js';
+import { initUpdater } from './updater.js';
 import * as mainView from './views/main.js';
 import * as summaryView from './views/summary.js';
 import * as settingsView from './views/settings.js';
@@ -76,9 +77,10 @@ function bootstrap() {
   render();
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(err =>
-      console.error('[sw] registration failed:', err)
-    );
+    // updateViaCache: 'none' bypasses the HTTP cache when checking sw.js for updates.
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(registration => initUpdater(registration))
+      .catch(err => console.error('[sw] registration failed:', err));
   }
 }
 
