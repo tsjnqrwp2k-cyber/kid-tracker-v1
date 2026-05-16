@@ -1262,3 +1262,125 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   flex: 1 1 auto;
   min-width: 8rem;
 }
+
+/* ---------- Version section (Settings page) ---------- */
+.version-section {
+  margin: 1.5rem 0 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+  user-select: none;
+}
+
+.version-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.version-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  opacity: 0.6;
+  letter-spacing: 0.03em;
+}
+
+.version-check-btn {
+  min-height: 2rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--accent-soft, #FFE5EE);
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.version-check-btn:hover:not(:disabled)  { opacity: 1; }
+.version-check-btn:active:not(:disabled) { transform: scale(0.96); }
+.version-check-btn:disabled              { opacity: 0.5; cursor: default; }
+
+.version-status {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text);
+  opacity: 0.75;
+  animation: version-status-in 0.2s ease;
+}
+
+.version-status-error { color: #C7361B; opacity: 0.9; }
+
+@keyframes version-status-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 0.75; transform: translateY(0); }
+}
+
+/* ---------- Update banner ---------- */
+.update-banner-host:empty {
+  display: none;
+}
+
+.update-banner {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--accent-soft, #FFE5EE);
+  border-bottom: 2px solid var(--accent, #FF6B9D);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  animation: update-banner-in 0.25s ease;
+}
+
+@keyframes update-banner-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.update-banner-text {
+  flex: 1;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.update-banner-btn {
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--accent, #FF6B9D);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.update-banner-btn:hover   { filter: brightness(1.05); }
+.update-banner-btn:active  { transform: scale(0.96); }
+
+.update-banner-close {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border-radius: 999px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.update-banner-close:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+
+@media (max-width: 480px) {
+  .update-banner {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .update-banner-text {
+    flex: 1 1 100%;
+    font-size: 0.9rem;
+  }
+}
